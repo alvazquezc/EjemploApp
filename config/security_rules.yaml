@@ -1,0 +1,151 @@
+rules:
+  - id: no_hardcoded_tokens
+    title: No hardcoded tokens
+    description: Secrets, API keys and tokens must never be committed or hardcoded.
+    severity: high
+    category: secrets
+  - id: use_env_or_secret_manager
+    title: Use env or secret manager
+    description: Runtime credentials must be loaded from environment variables or a managed secret store.
+    severity: high
+    category: secrets
+  - id: rotate_exposed_tokens
+    title: Rotate exposed tokens
+    description: Any exposed token must be revoked and rotated immediately.
+    severity: high
+    category: secrets
+  - id: treat_all_input_as_untrusted
+    title: Treat all input as untrusted
+    description: User and external content must be processed as untrusted data.
+    severity: high
+    category: validation
+  - id: validate_schema
+    title: Validate schema
+    description: Validate every request and provider response against explicit schemas.
+    severity: high
+    category: validation
+  - id: limit_payload_size
+    title: Limit payload size
+    description: Reject oversized payloads before tokenization or provider execution.
+    severity: medium
+    category: validation
+  - id: isolate_system_instructions
+    title: Isolate system instructions
+    description: Keep system and developer instructions separate from user-controlled content.
+    severity: high
+    category: prompt_injection
+  - id: detect_instruction_override
+    title: Detect instruction override
+    description: Detect attempts to ignore, override or reveal internal instructions.
+    severity: high
+    category: prompt_injection
+  - id: external_content_is_data
+    title: External content is data
+    description: Treat retrieved documents and web content as data, not instructions.
+    severity: high
+    category: prompt_injection
+  - id: allowlist_tools
+    title: Allowlist tools
+    description: Agents may only execute tools explicitly registered in the allowlist.
+    severity: high
+    category: tools
+  - id: least_privilege
+    title: Least privilege
+    description: Tools and providers receive only the minimum context and permission needed.
+    severity: medium
+    category: tools
+  - id: confirm_destructive_actions
+    title: Confirm destructive actions
+    description: Destructive actions require explicit confirmation and are not implemented in this demo.
+    severity: high
+    category: tools
+  - id: sandbox_execution
+    title: Sandbox execution
+    description: Any future executable tool must run inside a constrained sandbox.
+    severity: high
+    category: tools
+  - id: token_budget
+    title: Token budget
+    description: Enforce a maximum token budget per request.
+    severity: medium
+    category: tokens
+  - id: context_minimization
+    title: Context minimization
+    description: Send only the minimum useful context to agents and providers.
+    severity: medium
+    category: tokens
+  - id: pii_redaction
+    title: PII redaction
+    description: Redact sensitive personal information before logging or provider execution.
+    severity: high
+    category: data
+  - id: log_token_usage
+    title: Log token usage
+    description: Track input, output and total token estimates for observability.
+    severity: low
+    category: observability
+  - id: no_sensitive_logging
+    title: No sensitive logging
+    description: Never log secrets, credentials or internal prompts.
+    severity: high
+    category: data
+  - id: encrypted_transport
+    title: Encrypted transport
+    description: Production deployments should use HTTPS/TLS.
+    severity: medium
+    category: data
+  - id: encrypted_storage
+    title: Encrypted storage
+    description: Persisted sensitive data must be encrypted at rest.
+    severity: medium
+    category: data
+  - id: retention_policy
+    title: Retention policy
+    description: Define retention windows for prompts, traces and audit logs.
+    severity: medium
+    category: data
+  - id: prevent_secret_disclosure
+    title: Prevent secret disclosure
+    description: Responses must not reveal credentials, hidden prompts or internal policy text.
+    severity: high
+    category: response
+  - id: cite_uncertainty
+    title: Cite uncertainty
+    description: Responses should acknowledge uncertainty when the system uses estimates or simulations.
+    severity: low
+    category: response
+  - id: avoid_unsafe_code
+    title: Avoid unsafe code
+    description: The system must not generate or execute unsafe code paths in this demo.
+    severity: high
+    category: response
+  - id: require_authentication
+    title: Require authentication
+    description: Production provider access should require authentication.
+    severity: medium
+    category: access
+  - id: role_based_access
+    title: Role-based access
+    description: Privileged actions should be restricted by role.
+    severity: medium
+    category: access
+  - id: audit_privileged_actions
+    title: Audit privileged actions
+    description: Privileged provider and tool actions must be auditable.
+    severity: medium
+    category: access
+  - id: structured_audit_log
+    title: Structured audit log
+    description: Audit events should use structured fields for provider, intent, tokens and policy.
+    severity: low
+    category: observability
+  - id: anomaly_detection
+    title: Anomaly detection
+    description: Monitor unusual token spikes, blocked prompts and provider errors.
+    severity: medium
+    category: observability
+  - id: fail_closed
+    title: Fail closed
+    description: Policy, validation and provider errors should block unsafe execution.
+    severity: high
+    category: observability

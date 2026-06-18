@@ -1,0 +1,342 @@
+\documentclass[12pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+
+\geometry{margin=2.4cm}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!55!black,
+  urlcolor=blue!55!black,
+  pdftitle={Reporte tecnico del demo web},
+  pdfauthor={Codex}
+}
+
+\definecolor{codebg}{RGB}{245,247,250}
+\definecolor{codeframe}{RGB}{210,218,226}
+\definecolor{heading}{RGB}{20,40,60}
+
+\lstdefinestyle{reportcode}{
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false
+}
+\lstset{style=reportcode}
+
+\titleformat{\section}{\Large\bfseries\color{heading}}{\thesection.}{0.6em}{}
+\titleformat{\subsection}{\large\bfseries\color{heading}}{\thesubsection.}{0.6em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Demo chatbot con agente orquestador}
+\rhead{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\setlist[itemize]{leftmargin=1.2cm}
+\setlist[enumerate]{leftmargin=1.2cm}
+\renewcommand{\arraystretch}{1.2}
+
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  \vspace*{2.0cm}
+  {\Huge\bfseries Reporte tecnico\par}
+  \vspace{0.4cm}
+  {\Large Demo web de chatbot con agente orquestador\par}
+  \vspace{0.6cm}
+  {\large Detector de intenciones, refuerzo OpenIA offline y visualizacion de flujo de tokens\par}
+  \vfill
+  \begin{tabular}{rl}
+    Proyecto: & EjemploApp \\
+    Stack: & React + Vite + TypeScript / FastAPI + Pydantic \\
+    Modalidad: & Demo local sin APIs externas \\
+    Documento: & Reporte de entrega \\
+  \end{tabular}
+  \vfill
+  {\large \today\par}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Resumen ejecutivo}
+
+Se desarrollo un demo web funcional de una aplicacion tipo chatbot con agente orquestador, detector de intenciones, refuerzo OpenIA/OpenAI-compatible en modo offline, reglas de ciberseguridad y visualizacion interna del flujo de tokens.
+
+La aplicacion permite que un usuario escriba un mensaje, lo procese en backend por etapas y visualice en frontend el flujo completo mediante nodos secuenciales, inspector tecnico JSON, metricas de tokens, intencion detectada, agente seleccionado, herramienta ejecutada y reglas de seguridad aplicadas.
+
+El demo corre localmente sin APIs externas, sin claves reales y sin ejecutar codigo arbitrario.
+
+\section{Alcance implementado}
+
+\begin{itemize}
+  \item Frontend en React + Vite + TypeScript.
+  \item Visualizacion de flujo con React Flow.
+  \item Backend en Python + FastAPI.
+  \item Validacion de requests y respuestas con Pydantic.
+  \item Reglas de ciberseguridad en YAML.
+  \item Pipeline trazable por etapas.
+  \item Detector de intenciones por reglas.
+  \item Modulo de refuerzo de intencion \texttt{OpenIA/OpenAI-compatible} en modo offline.
+  \item Orquestador de agentes.
+  \item Allowlist de herramientas locales.
+  \item Ejemplos educativos de ataques de IA.
+  \item Documentacion tecnica con diagramas y flujos.
+\end{itemize}
+
+\section{Estructura del proyecto}
+
+\begin{lstlisting}[language={},caption={Estructura general del repositorio}]
+EjemploApp/
+  backend/
+    app/
+      agents/
+      services/
+      tools/
+      main.py
+      schemas.py
+    security_rules.yaml
+    requirements.txt
+  frontend/
+    src/
+      components/
+      services/
+      styles/
+      types/
+      App.tsx
+    package.json
+    vite.config.ts
+  docs/
+    FUNCIONAMIENTO_Y_FLUJOS.md
+    REPORTE_TECNICO.md
+    REPORTE_TECNICO.tex
+  README.md
+\end{lstlisting}
+
+\section{Arquitectura general}
+
+La arquitectura se divide en frontend, API backend, servicios de negocio, agentes y herramientas locales.
+
+\begin{center}
+\begin{tabular}{>{\bfseries}p{4cm}p{10cm}}
+\toprule
+Componente & Responsabilidad \\
+\midrule
+Frontend React & Captura mensajes, renderiza chat, muestra metricas, visualiza nodos y permite inspeccionar etapas. \\
+FastAPI & Expone endpoints HTTP y valida contratos con Pydantic. \\
+Pipeline & Ejecuta las etapas secuenciales y genera trazas estructuradas. \\
+Detector de intencion & Clasifica la solicitud inicial mediante reglas simples. \\
+Refuerzo OpenIA & Ajusta la intencion en modo offline con senales semanticas locales. \\
+Policy guard & Bloquea prompt injection, secretos y exceso de presupuesto. \\
+Orquestador & Selecciona agente y herramienta segun la intencion final. \\
+Agentes & Generan respuestas deterministas locales. \\
+Herramientas & Ejecutan funciones permitidas por allowlist. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Backend}
+
+El backend expone una API FastAPI con tres responsabilidades principales:
+
+\begin{enumerate}
+  \item Recibir mensajes del usuario.
+  \item Ejecutar el pipeline interno.
+  \item Devolver una respuesta estructurada con trazas, seguridad, tokens e intencion.
+\end{enumerate}
+
+\subsection{Endpoints}
+
+\begin{longtable}{p{2.2cm}p{4.5cm}p{7cm}}
+\toprule
+\textbf{Metodo} & \textbf{Endpoint} & \textbf{Funcion} \\
+\midrule
+\endhead
+\texttt{GET} & \texttt{/api/health} & Verifica estado del servicio. \\
+\texttt{GET} & \texttt{/api/security-rules} & Devuelve reglas cargadas desde YAML. \\
+\texttt{GET} & \texttt{/api/ai-attack-examples} & Devuelve ejemplos educativos de ataques IA. \\
+\texttt{POST} & \texttt{/api/chat} & Procesa el mensaje y devuelve respuesta, traza, seguridad, tokens, intencion, agente y herramienta. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Pipeline implementado}
+
+\begin{enumerate}
+  \item \texttt{raw\_input}
+  \item \texttt{normalization}
+  \item \texttt{tokenization}
+  \item \texttt{entity\_extraction}
+  \item \texttt{intent\_detection}
+  \item \texttt{intent\_reinforcement}
+  \item \texttt{policy\_guard}
+  \item \texttt{orchestrator}
+  \item \texttt{agent\_selection}
+  \item \texttt{tool\_execution}
+  \item \texttt{response\_generation}
+  \item \texttt{audit\_log}
+\end{enumerate}
+
+Cada etapa genera los campos \texttt{stage}, \texttt{status}, \texttt{input\_type}, \texttt{output\_type}, \texttt{input}, \texttt{output} y \texttt{metadata}.
+
+\section{Modulo OpenIA/OpenAI-compatible}
+
+Se agrego el modulo \texttt{openia\_intent\_reinforcer.py}. Su funcion es reforzar la intencion detectada usando una capa semantica local. No llama a APIs externas y no requiere \texttt{OPENAI\_API\_KEY}.
+
+\subsection{Comportamiento}
+
+\begin{itemize}
+  \item Si la intencion base es \texttt{unknown\_intent} o \texttt{general\_question}, puede reemplazarla por una intencion mas especifica cuando encuentra senales suficientes.
+  \item Si la intencion base ya es especifica, puede conservarla y elevar la confianza.
+  \item Si no encuentra senales utiles, conserva la intencion original.
+  \item Si se configura un modo externo no soportado, no realiza llamadas de red y reporta que el modo externo no esta habilitado.
+\end{itemize}
+
+\subsection{Ejemplo validado}
+
+\begin{lstlisting}[language={},caption={Refuerzo de intencion}]
+Entrada: tokens
+Intencion base: unknown_intent
+Intencion final: explain_tokens
+Refuerzo aplicado: true
+Etapas de traza: 12
+\end{lstlisting}
+
+\section{Frontend}
+
+El frontend esta organizado en tres paneles:
+
+\begin{itemize}
+  \item Panel izquierdo: chat.
+  \item Panel central: flujo React Flow y metricas.
+  \item Panel derecho: inspector tecnico.
+\end{itemize}
+
+La interfaz muestra conversacion, nodos del pipeline, estado de cada etapa, JSON de entrada y salida, conteo estimado de tokens, costo ilustrativo, politica de seguridad, refuerzo OpenIA, agente seleccionado, herramienta ejecutada, reglas activadas y ejemplos defensivos de ataques IA.
+
+\section{Seguridad implementada}
+
+El sistema incorpora controles de seguridad basicos:
+
+\begin{itemize}
+  \item Validacion Pydantic para requests.
+  \item Rechazo de mensajes vacios.
+  \item Limite de longitud del mensaje.
+  \item Deteccion simple de prompt injection.
+  \item Deteccion de texto con forma de secreto.
+  \item Redaccion de secretos en trazas.
+  \item Allowlist de herramientas.
+  \item Bloqueo fail closed ante politica insegura.
+  \item Sin ejecucion arbitraria de codigo.
+  \item Sin endpoints destructivos.
+  \item Sin uso de claves reales.
+  \item Sin servicios pagos ni APIs externas.
+\end{itemize}
+
+\section{Ejemplos de ataques IA incluidos}
+
+El endpoint \texttt{/api/ai-attack-examples} devuelve ejemplos educativos para explicar riesgos y defensas.
+
+\begin{longtable}{p{4cm}p{5cm}p{5cm}}
+\toprule
+\textbf{Categoria} & \textbf{Ejemplo resumido} & \textbf{Defensa esperada} \\
+\midrule
+\endhead
+Prompt injection directa & Ignorar instrucciones anteriores. & Detectar bypass y bloquear. \\
+Extraccion de prompt interno & Pedir prompts o politicas internas. & No revelar configuracion interna. \\
+Abuso de herramientas & Forzar herramientas no autorizadas. & Aplicar allowlist. \\
+Inyeccion indirecta & Documento externo intenta dar instrucciones. & Tratar contenido externo como datos. \\
+Secreto en entrada & Usuario pega token o API key. & Redactar y bloquear segun politica. \\
+Accion destructiva & Saltar confirmacion para eliminar datos. & Requerir confirmacion y permisos. \\
+\bottomrule
+\end{longtable}
+
+\section{Evidencia de validacion}
+
+Se ejecutaron validaciones de backend y frontend.
+
+\subsection{Backend}
+
+\begin{lstlisting}[language=bash,caption={Comandos de validacion backend}]
+python -m compileall -q app
+pip check
+\end{lstlisting}
+
+Resultado:
+
+\begin{lstlisting}[language={},caption={Resultado de dependencias Python}]
+No broken requirements found.
+\end{lstlisting}
+
+Pruebas funcionales:
+
+\begin{lstlisting}[language={},caption={Pruebas funcionales backend}]
+/api/health -> OK
+/api/ai-attack-examples -> 6 ejemplos
+/api/chat con "tokens" -> explain_tokens, refuerzo aplicado, 12 etapas
+/api/chat con prompt injection -> bloqueado, 12 etapas
+\end{lstlisting}
+
+\subsection{Frontend}
+
+\begin{lstlisting}[language=bash,caption={Comandos de validacion frontend}]
+npm run build
+npm audit --audit-level=moderate
+\end{lstlisting}
+
+Resultado:
+
+\begin{lstlisting}[language={},caption={Resultado frontend}]
+TypeScript compila sin errores.
+Vite genera bundle de produccion.
+0 vulnerabilities.
+\end{lstlisting}
+
+\section{Limitaciones del demo}
+
+\begin{itemize}
+  \item No usa modelos reales.
+  \item No llama a OpenAI ni a otro proveedor externo.
+  \item El conteo de tokens es aproximado.
+  \item El costo es ilustrativo.
+  \item El detector de intenciones es determinista.
+  \item No persiste auditorias en base de datos.
+  \item No implementa autenticacion ni roles reales.
+\end{itemize}
+
+\section{Posibles extensiones}
+
+\begin{itemize}
+  \item Integrar OpenAI real mediante una bandera explicita y \texttt{OPENAI\_API\_KEY} en variable de entorno.
+  \item Validar salidas de modelo con esquemas estrictos.
+  \item Agregar pruebas automatizadas con \texttt{pytest}.
+  \item Persistir auditoria redacted.
+  \item Agregar autenticacion y RBAC.
+  \item Sustituir el estimador por un tokenizer real.
+  \item Exportar trazas como JSON o PDF.
+  \item Agregar vista de comparacion entre intencion base e intencion reforzada.
+\end{itemize}
+
+\section{Conclusiones}
+
+El demo cumple el objetivo de mostrar de forma educativa lo que ocurre internamente cuando un chatbot procesa un mensaje. La arquitectura separa frontend, backend, reglas, agentes, herramientas, seguridad y trazabilidad.
+
+La aplicacion queda lista para demostraciones locales y como base para futuras integraciones reales, manteniendo por defecto un modo seguro, offline y sin secretos.
+
+\end{document}

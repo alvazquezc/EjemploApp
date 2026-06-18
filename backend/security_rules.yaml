@@ -1,0 +1,82 @@
+rules:
+  - id: no_hardcoded_tokens
+    title: No hardcoded tokens
+    description: Tokens, API keys and credentials must never be written directly in source code.
+    severity: high
+    category: secrets
+  - id: environment_variables_for_secrets
+    title: Environment variables for secrets
+    description: Runtime secrets should be injected through environment variables or a managed secret store.
+    severity: high
+    category: secrets
+  - id: strict_input_validation
+    title: Strict input validation
+    description: Every request must be validated with explicit types, length limits and required fields.
+    severity: high
+    category: validation
+  - id: payload_size_limit
+    title: Payload size limit
+    description: User payloads must be bounded to reduce denial-of-service and token budget risk.
+    severity: medium
+    category: validation
+  - id: basic_prompt_injection_detection
+    title: Basic prompt injection detection
+    description: Detect common attempts to override system instructions, reveal prompts or bypass policy.
+    severity: high
+    category: ai_safety
+  - id: external_content_as_data
+    title: Treat external content as data
+    description: External text, documents and URLs must be treated as untrusted data, not executable instructions.
+    severity: high
+    category: ai_safety
+  - id: tool_allowlist
+    title: Tool allowlist
+    description: Agents may only call explicitly registered local tools.
+    severity: high
+    category: tools
+  - id: least_privilege
+    title: Least privilege
+    description: Agents and tools should receive only the permissions and context required for the current task.
+    severity: medium
+    category: access_control
+  - id: destructive_action_confirmation
+    title: Destructive action confirmation
+    description: Destructive operations require explicit user confirmation and are not implemented in this demo.
+    severity: high
+    category: workflow
+  - id: max_token_budget
+    title: Maximum token budget
+    description: Input and generated output should remain under an explicit local token budget.
+    severity: medium
+    category: tokens
+  - id: context_minimization
+    title: Context minimization
+    description: Only the smallest useful context should be sent through the pipeline.
+    severity: medium
+    category: privacy
+  - id: no_log_secrets
+    title: Do not log secrets
+    description: Logs and traces must redact or avoid secret-like values.
+    severity: high
+    category: logging
+  - id: https_tls_recommended
+    title: HTTPS/TLS recommended
+    description: Production deployments should serve the API over HTTPS/TLS.
+    severity: medium
+    category: transport
+  - id: role_based_access_control
+    title: Role-based access control
+    description: Production apps should restrict administrative and tool actions by role.
+    severity: medium
+    category: access_control
+  - id: structured_logs
+    title: Structured logs
+    description: Audit events should use structured fields while avoiding sensitive content.
+    severity: low
+    category: logging
+  - id: fail_closed
+    title: Fail closed on errors
+    description: Policy and tool errors should block unsafe actions instead of continuing silently.
+    severity: high
+    category: resilience
+

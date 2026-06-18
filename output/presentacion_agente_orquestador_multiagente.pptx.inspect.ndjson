@@ -1,0 +1,33 @@
+{"kind":"deck","id":"pr/tauqe8","name":"Deck"}
+{"kind":"layout","layoutId":"17619fe3-be4b-4a68-b922-2fb274615958","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"3159d5a5-3665-4c61-b735-591c5f3c131a","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/nvtjvo","slide":1,"title":"Slide 1","textShapes":0}
+{"kind":"image","id":"im/s72x4nap","slide":1,"name":"","alt":"Apertura mas alla de tokens teoricos","prompt":"Infografia 16:9 full-bleed para una presentacion tecnica en espanol. Mensaje central: mas alla de los tokens teoricos. Mostrar transicion de teoria de tokens hacia una aplicacion real que revela flujo interno, flexibilidad y resiliencia. Estilo SaaS tecnico, fondo claro, acentos teal azul ambar, texto grande legible, sin logos.","bbox":[0,0,1280,720]}
+{"kind":"notes","id":"nt/nvtjvo","slide":1,"text":""}
+{"kind":"slide","id":"sl/ascpba","slide":2,"title":"Slide 2","textShapes":0}
+{"kind":"image","id":"im/d8v6psfi","slide":2,"name":"","alt":"Proposito didactico de la aplicacion","prompt":"Infografia 16:9 full-bleed sobre el objetivo didactico de una app demo. Presentar una aplicacion que ayuda a conocer el flujo interno de algo simple: un detector de intencion. Mostrar mensaje de usuario, detector, decision y respuesta. Estilo tecnico claro, fondo blanco gris, acentos teal azul ambar, texto espanol legible.","bbox":[0,0,1280,720]}
+{"kind":"notes","id":"nt/ascpba","slide":2,"text":""}
+{"kind":"slide","id":"sl/7ct4w6","slide":3,"title":"Slide 3","textShapes":0}
+{"kind":"image","id":"im/at47y1kr","slide":3,"name":"","alt":"Detector de intencion como caso simple","prompt":"Diagrama 16:9 full-bleed de un detector de intencion. Mostrar entrada de usuario, normalizacion, extraccion de entidades, clasificacion de intencion, confianza y ruta hacia agente o herramienta. Estilo tecnico de flujo, fondo claro, nodos compactos, acentos teal azul ambar, texto espanol legible.","bbox":[0,0,1280,720]}
+{"kind":"notes","id":"nt/7ct4w6","slide":3,"text":""}
+{"kind":"slide","id":"sl/3hvzsl","slide":4,"title":"Slide 4","textShapes":0}
+{"kind":"image","id":"im/bm58z25k","slide":4,"name":"","alt":"Flujo interno observable de la aplicacion","prompt":"Infografia 16:9 full-bleed mostrando el flujo interno observable de una app chatbot: raw input, normalization, tokenization, entity extraction, intent detection, policy guard, provider selection, orchestrator, prompt builder, agent selection, tool execution, provider execution, response generation, audit log. Estilo diagrama de pipeline, fondo claro con reticula, acentos teal y ambar, texto espanol.","bbox":[0,0,1280,720]}
+{"kind":"notes","id":"nt/3hvzsl","slide":4,"text":""}
+{"kind":"slide","id":"sl/iz8nyq","slide":5,"title":"Slide 5","textShapes":0}
+{"kind":"image","id":"im/qxs72x4n","slide":5,"name":"","alt":"Buenas practicas de programacion visibles en el demo","prompt":"Infografia 16:9 full-bleed sobre buenas practicas de programacion para apps IA: schemas, modularidad, sanitizacion, variables de entorno, allowlist de herramientas, observabilidad, fallback seguro. Estilo matriz tecnica limpia, bloques claros, fondo claro, acentos teal azul ambar rojo verde, texto espanol legible.","bbox":[0,0,1280,720]}
+{"kind":"notes","id":"nt/iz8nyq","slide":5,"text":""}
+{"kind":"slide","id":"sl/4eihzw","slide":6,"title":"Slide 6","textShapes":0}
+{"kind":"image","id":"im/0je9cvix","slide":6,"name":"","alt":"Contraste entre modo local y OpenAI API","prompt":"Comparativa visual 16:9 full-bleed entre dos modos de una app IA: modo local deterministico para aprendizaje y modo OpenAI API con consumo real de tokens. Mostrar contraste de costo, latencia, proveedor, modelo, seguridad de API key y observabilidad. Estilo tecnico limpio, dos columnas, fondo claro, texto espanol legible.","bbox":[0,0,1280,720]}
+{"kind":"notes","id":"nt/4eihzw","slide":6,"text":""}
+{"kind":"slide","id":"sl/oo8jnp","slide":7,"title":"Slide 7","textShapes":0}
+{"kind":"image","id":"im/1032lszq","slide":7,"name":"","alt":"Tokens como senal operacional","prompt":"Infografia 16:9 full-bleed sobre tokens como senal operacional, no solo teoria. Mostrar entrada tokenizada, prompt construido, presupuesto, costo, latencia y contexto. Enfatizar que los tokens ayudan a decidir limites, costos y rutas. Estilo dashboard tecnico, fondo claro, acentos teal ambar azul, texto espanol.","bbox":[0,0,1280,720]}
+{"kind":"notes","id":"nt/oo8jnp","slide":7,"text":""}
+{"kind":"slide","id":"sl/56iiz6","slide":8,"title":"Slide 8","textShapes":0}
+{"kind":"image","id":"im/cj6tovah","slide":8,"name":"","alt":"Observabilidad para entender decisiones","prompt":"Infografia 16:9 full-bleed sobre observabilidad en una app de detector de intencion con LLM. Mostrar metricas de tokens, costo, politica, proveedor, agente, herramienta, timeline y audit log JSON. Estilo dashboard SaaS tecnico, fondo claro, texto espanol legible, acentos teal azul ambar.","bbox":[0,0,1280,720]}
+{"kind":"notes","id":"nt/56iiz6","slide":8,"text":""}
+{"kind":"slide","id":"sl/m1kib5","slide":9,"title":"Slide 9","textShapes":0}
+{"kind":"image","id":"im/e9cvixcz","slide":9,"name":"","alt":"Flexibilidad y resiliencia en el flujo","prompt":"Diagrama 16:9 full-bleed sobre flexibilidad y resiliencia en una app IA. Mostrar router de intencion que puede escoger agente, herramienta y proveedor. Incluir fallback local si no hay OPENAI_API_KEY, policy guard fail closed y logs sanitizados. Estilo arquitectura limpia, fondo claro, nodos conectados, texto espanol.","bbox":[0,0,1280,720]}
+{"kind":"notes","id":"nt/m1kib5","slide":9,"text":""}
+{"kind":"slide","id":"sl/5na6f9","slide":10,"title":"Slide 10","textShapes":0}
+{"kind":"image","id":"im/g7adsji5","slide":10,"name":"","alt":"Preparacion hacia sistemas multiagente","prompt":"Roadmap 16:9 full-bleed que conecta una app simple de detector de intencion con sistemas multiagente. Etapas: detector de intencion, orquestador, agentes especializados, herramientas seguras, observabilidad compartida, evaluaciones. Estilo roadmap tecnico horizontal, fondo claro, acentos teal azul ambar verde violeta, texto espanol.","bbox":[0,0,1280,720]}
+{"kind":"notes","id":"nt/5na6f9","slide":10,"text":""}

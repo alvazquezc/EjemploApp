@@ -1,0 +1,918 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reporte tecnico - Demo chatbot con agente orquestador</title>
+    <style>
+      :root {
+        --ink: #17202a;
+        --muted: #5b6778;
+        --line: #d8e0e8;
+        --brand: #12324a;
+        --accent: #087f73;
+        --soft: #f5f7fa;
+        --paper: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: #e9eef3;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.55;
+      }
+
+      .toolbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        justify-content: center;
+        border-bottom: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.94);
+        backdrop-filter: blur(8px);
+      }
+
+      .toolbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        width: min(1100px, 100%);
+        padding: 12px 18px;
+      }
+
+      .toolbar-title {
+        display: grid;
+        gap: 2px;
+      }
+
+      .toolbar-title strong {
+        font-size: 0.95rem;
+      }
+
+      .toolbar-title span {
+        color: var(--muted);
+        font-size: 0.78rem;
+      }
+
+      button {
+        border: 0;
+        border-radius: 8px;
+        padding: 10px 14px;
+        color: #ffffff;
+        background: var(--accent);
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: #066c62;
+      }
+
+      .page {
+        width: min(980px, calc(100% - 32px));
+        margin: 24px auto;
+        padding: 54px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+        box-shadow: 0 16px 38px rgba(15, 23, 42, 0.12);
+      }
+
+      .cover {
+        display: grid;
+        gap: 18px;
+        min-height: 520px;
+        align-content: center;
+        text-align: center;
+      }
+
+      .kicker {
+        color: var(--accent);
+        font-size: 0.78rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3 {
+        color: var(--brand);
+        line-height: 1.2;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 2.6rem;
+      }
+
+      h2 {
+        margin: 34px 0 12px;
+        padding-top: 6px;
+        border-top: 1px solid var(--line);
+        font-size: 1.45rem;
+      }
+
+      h3 {
+        margin: 22px 0 8px;
+        font-size: 1.05rem;
+      }
+
+      p {
+        margin: 0 0 12px;
+      }
+
+      .subtitle {
+        max-width: 760px;
+        margin: 0 auto;
+        color: var(--muted);
+        font-size: 1.05rem;
+      }
+
+      .meta-grid,
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        margin: 24px 0;
+      }
+
+      .meta-grid div,
+      .metric-grid div {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+        background: var(--soft);
+        text-align: left;
+      }
+
+      .meta-grid span,
+      .metric-grid span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.72rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .meta-grid strong,
+      .metric-grid strong {
+        display: block;
+        margin-top: 4px;
+        overflow-wrap: anywhere;
+      }
+
+      .toc {
+        columns: 2;
+        column-gap: 36px;
+        margin: 18px 0 26px;
+        padding: 0;
+        list-style: none;
+      }
+
+      .toc li {
+        break-inside: avoid;
+        margin-bottom: 8px;
+      }
+
+      .toc a {
+        color: var(--brand);
+        text-decoration: none;
+      }
+
+      ul,
+      ol {
+        margin: 0 0 14px 20px;
+        padding: 0;
+      }
+
+      li {
+        margin-bottom: 6px;
+      }
+
+      table {
+        width: 100%;
+        margin: 14px 0 20px;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 9px 10px;
+        vertical-align: top;
+      }
+
+      th {
+        color: #ffffff;
+        background: var(--brand);
+        text-align: left;
+      }
+
+      tr:nth-child(even) td {
+        background: #fbfcfd;
+      }
+
+      code,
+      pre {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      }
+
+      code {
+        border-radius: 5px;
+        padding: 1px 4px;
+        background: #eef2f6;
+      }
+
+      pre {
+        overflow: auto;
+        margin: 14px 0 20px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: #101820;
+        color: #d7e7ef;
+        font-size: 0.82rem;
+        line-height: 1.45;
+      }
+
+      .note {
+        border-left: 4px solid var(--accent);
+        margin: 18px 0;
+        padding: 12px 14px;
+        background: #eef8f5;
+      }
+
+      .two-col {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: #ffffff;
+      }
+
+      .footer {
+        margin-top: 36px;
+        padding-top: 14px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+
+      .diagram-grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .diagram-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: #ffffff;
+        overflow: auto;
+      }
+
+      .diagram-card h3 {
+        margin-top: 0;
+      }
+
+      .mermaid {
+        min-width: 620px;
+        padding: 8px;
+        background: #ffffff;
+      }
+
+      @media (max-width: 760px) {
+        .page {
+          width: 100%;
+          margin: 0;
+          padding: 28px 18px;
+          border: 0;
+          border-radius: 0;
+        }
+
+        .meta-grid,
+        .metric-grid,
+        .two-col {
+          grid-template-columns: 1fr;
+        }
+
+        .toc {
+          columns: 1;
+        }
+      }
+
+      @media print {
+        @page {
+          size: letter;
+          margin: 1.6cm;
+        }
+
+        body {
+          background: #ffffff;
+        }
+
+        .toolbar {
+          display: none;
+        }
+
+        .page {
+          width: auto;
+          margin: 0;
+          padding: 0;
+          border: 0;
+          box-shadow: none;
+        }
+
+        .cover {
+          min-height: 86vh;
+          page-break-after: always;
+        }
+
+        h2 {
+          page-break-after: avoid;
+        }
+
+        table,
+        pre,
+        .card,
+        .note,
+        .diagram-card {
+          break-inside: avoid;
+        }
+
+        .diagram-card {
+          overflow: visible;
+        }
+
+        a {
+          color: inherit;
+          text-decoration: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="toolbar">
+      <div class="toolbar-inner">
+        <div class="toolbar-title">
+          <strong>Reporte tecnico HTML</strong>
+          <span>Usa el boton para imprimir o guardar como PDF.</span>
+        </div>
+        <button type="button" onclick="window.print()">Imprimir / Guardar PDF</button>
+      </div>
+    </div>
+
+    <main class="page">
+      <section class="cover">
+        <div class="kicker">Reporte de entrega</div>
+        <h1>Demo web de chatbot con agente orquestador</h1>
+        <p class="subtitle">
+          Detector de intenciones, refuerzo OpenIA offline, proveedores, tokens,
+          observabilidad, seguridad y visualizacion de flujo.
+        </p>
+        <div class="meta-grid">
+          <div><span>Proyecto</span><strong>EjemploApp</strong></div>
+          <div><span>Frontend</span><strong>React + Vite + TypeScript</strong></div>
+          <div><span>Backend</span><strong>FastAPI + Pydantic</strong></div>
+          <div><span>Modo</span><strong>Local con OpenAI API preparado</strong></div>
+        </div>
+      </section>
+
+      <section id="indice">
+        <h2>Indice</h2>
+        <ol class="toc">
+          <li><a href="#resumen">Resumen ejecutivo</a></li>
+          <li><a href="#alcance">Alcance implementado</a></li>
+          <li><a href="#arquitectura">Arquitectura reestructurada</a></li>
+          <li><a href="#pipeline">Pipeline y observabilidad</a></li>
+          <li><a href="#openai">OpenIA / OpenAI API</a></li>
+          <li><a href="#frontend">Frontend</a></li>
+          <li><a href="#diseno">Diseño de software</a></li>
+          <li><a href="#uml">UML y diagramas</a></li>
+          <li><a href="#seguridad">Seguridad</a></li>
+          <li><a href="#validacion">Evidencia de validacion</a></li>
+          <li><a href="#riesgos">Riesgos y limitaciones</a></li>
+          <li><a href="#conclusiones">Conclusiones</a></li>
+        </ol>
+      </section>
+
+      <section id="resumen">
+        <h2>1. Resumen ejecutivo</h2>
+        <p>
+          Se desarrollo y reestructuro incrementalmente un demo web educativo
+          para explicar como funcionan aplicaciones modernas basadas en LLMs,
+          consumo de tokens, agentes, herramientas, proveedores, costos,
+          latencia, seguridad y observabilidad.
+        </p>
+        <p>
+          El sistema conserva el modo local/simulado como herramienta pedagogica,
+          y agrega una arquitectura explicita para comparar procesamiento local
+          contra un modo <code>openai_api</code> preparado desde backend, sin
+          exponer secretos al frontend.
+        </p>
+        <div class="note">
+          El objetivo principal no es construir un chatbot tradicional, sino un
+          inspector visual de flujo tipo LabVIEW para comprender el ciclo de vida
+          de una solicitud en una aplicacion LLM.
+        </div>
+      </section>
+
+      <section id="alcance">
+        <h2>2. Alcance implementado</h2>
+        <ul>
+          <li>Frontend React + Vite + TypeScript.</li>
+          <li>Visualizacion de flujo con React Flow.</li>
+          <li>Backend Python + FastAPI + Pydantic.</li>
+          <li>Pipeline trazable por etapas.</li>
+          <li>Detector de intencion por reglas y refuerzo OpenIA offline.</li>
+          <li>Selector de proveedor: <code>local_mock</code> y <code>openai_api</code>.</li>
+          <li>Prompt builder inspeccionable.</li>
+          <li>Dashboard de tokens, costo, latencia, CPU, RAM y contexto.</li>
+          <li>Policy guard y reglas de ciberseguridad.</li>
+          <li>Documentacion de migracion, diseno y UML.</li>
+        </ul>
+      </section>
+
+      <section id="arquitectura">
+        <h2>3. Arquitectura reestructurada</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Capa</th>
+              <th>Componentes</th>
+              <th>Responsabilidad</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Presentation</td>
+              <td><code>frontend/src</code></td>
+              <td>Chat, selector de proveedor, React Flow, inspector y dashboard Token &amp; Compute.</td>
+            </tr>
+            <tr>
+              <td>Application</td>
+              <td><code>pipeline.py</code></td>
+              <td>Coordina validacion, seguridad, proveedor, prompt, agente, herramienta y respuesta.</td>
+            </tr>
+            <tr>
+              <td>Domain</td>
+              <td>Agentes, orquestador, herramientas</td>
+              <td>Modela intenciones, seleccion de agente y herramientas permitidas.</td>
+            </tr>
+            <tr>
+              <td>Infrastructure</td>
+              <td>FastAPI, provider status, YAML</td>
+              <td>Expone endpoints, configuracion y disponibilidad de proveedores.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Arquitectura original vs reestructurada</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Aspecto</th>
+              <th>Original</th>
+              <th>Reestructurada</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Proveedor</td>
+              <td>Local implicito</td>
+              <td><code>local_mock</code> u <code>openai_api</code> preparado</td>
+            </tr>
+            <tr>
+              <td>Prompt</td>
+              <td>No era etapa visible</td>
+              <td><code>prompt_builder</code> inspeccionable</td>
+            </tr>
+            <tr>
+              <td>Observabilidad</td>
+              <td>Tokens y costo basico</td>
+              <td>Tokens, costo, latencia, CPU, RAM, contexto, modelo y proveedor</td>
+            </tr>
+            <tr>
+              <td>OpenAI</td>
+              <td>Refuerzo offline conceptual</td>
+              <td>Modo API representado con fallback seguro</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="pipeline">
+        <h2>4. Pipeline y observabilidad</h2>
+        <p>El pipeline actual conserva funcionalidad previa y agrega etapas arquitectonicas modernas.</p>
+        <ol>
+          <li><code>raw_input</code></li>
+          <li><code>normalization</code></li>
+          <li><code>tokenization</code></li>
+          <li><code>entity_extraction</code></li>
+          <li><code>intent_detection</code></li>
+          <li><code>intent_reinforcement</code></li>
+          <li><code>policy_guard</code></li>
+          <li><code>provider_selection</code></li>
+          <li><code>orchestrator</code></li>
+          <li><code>prompt_builder</code></li>
+          <li><code>agent_selection</code></li>
+          <li><code>tool_execution</code></li>
+          <li><code>provider_execution</code></li>
+          <li><code>response_generation</code></li>
+          <li><code>audit_log</code></li>
+        </ol>
+        <div class="metric-grid">
+          <div><span>Tokens</span><strong>Input, output y total</strong></div>
+          <div><span>Costo</span><strong>Estimado educativo</strong></div>
+          <div><span>Latencia</span><strong>Milisegundos estimados</strong></div>
+          <div><span>Compute</span><strong>CPU, RAM y contexto</strong></div>
+        </div>
+      </section>
+
+      <section id="openai">
+        <h2>5. OpenIA / OpenAI API</h2>
+        <p>
+          El sistema agrega el modo <code>openai_api</code> para explicar una
+          arquitectura basada en servicios cloud de IA, pero mantiene llamadas
+          live deshabilitadas hasta confirmar credenciales y adaptador seguro.
+        </p>
+        <pre>{
+  "message": "Explica que son los tokens",
+  "provider": "openai_api"
+}</pre>
+        <p>
+          Si no existe <code>OPENAI_API_KEY</code>, el backend aplica fallback
+          seguro a <code>local_mock</code>. El frontend nunca recibe ni necesita
+          claves.
+        </p>
+      </section>
+
+      <section id="frontend">
+        <h2>6. Frontend</h2>
+        <div class="two-col">
+          <div class="card">
+            <h3>Paneles</h3>
+            <ul>
+              <li>Chat y selector de proveedor.</li>
+              <li>Flujo React Flow.</li>
+              <li>Inspector tecnico JSON.</li>
+              <li>Dashboard inferior Token &amp; Compute.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Datos mostrados</h3>
+            <ul>
+              <li>Intencion y agente.</li>
+              <li>Herramienta ejecutada.</li>
+              <li>Proveedor y modelo.</li>
+              <li>Tokens, costo y latencia.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="seguridad">
+        <h2>7. Seguridad</h2>
+        <ul>
+          <li>Validacion Pydantic para requests.</li>
+          <li>Rechazo de mensajes vacios y payloads fuera de limite.</li>
+          <li>Deteccion basica de prompt injection.</li>
+          <li>Redaccion de textos con forma de secreto.</li>
+          <li>Allowlist de herramientas.</li>
+          <li>Fallback seguro ante proveedor OpenAI no disponible.</li>
+          <li>Sin endpoints destructivos ni ejecucion arbitraria de codigo.</li>
+        </ul>
+      </section>
+
+      <section id="diseno">
+        <h2>8. Diseño de software</h2>
+        <p>
+          El diseño se organiza en capas para separar responsabilidades y permitir
+          evolucionar hacia una integracion real con OpenAI sin romper el modo local.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Capa</th>
+              <th>Implementacion</th>
+              <th>Responsabilidad</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Presentation</td>
+              <td><code>frontend/src</code></td>
+              <td>Chat, selector de proveedor, React Flow, inspector tecnico y dashboard Token &amp; Compute.</td>
+            </tr>
+            <tr>
+              <td>Application</td>
+              <td><code>backend/app/services/pipeline.py</code></td>
+              <td>Orquestacion del caso de uso principal y generacion de trazas.</td>
+            </tr>
+            <tr>
+              <td>Domain</td>
+              <td><code>agents</code>, <code>orchestrator</code>, <code>tools</code></td>
+              <td>Intenciones, agentes, herramientas y decisiones de negocio.</td>
+            </tr>
+            <tr>
+              <td>Infrastructure</td>
+              <td><code>provider_selection</code>, FastAPI, YAML</td>
+              <td>Estado de proveedores, configuracion y contratos HTTP.</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="two-col">
+          <div class="card">
+            <h3>Modo local</h3>
+            <ul>
+              <li>Ejecucion deterministica.</li>
+              <li>Sin APIs externas.</li>
+              <li>CPU, RAM y latencia estimadas.</li>
+              <li>Costo monetario externo igual a cero.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Modo OpenAI API preparado</h3>
+            <ul>
+              <li>Seleccion explicita de proveedor.</li>
+              <li>Backend-only para credenciales.</li>
+              <li>Fallback seguro si falta <code>OPENAI_API_KEY</code>.</li>
+              <li>Adaptador live pendiente de compuerta segura.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="uml">
+        <h2>9. UML y diagramas</h2>
+        <p>
+          Los diagramas siguientes complementan la documentacion en
+          <code>docs/uml.md</code>. Se renderizan con Mermaid en el navegador.
+        </p>
+        <div class="diagram-grid">
+          <div class="diagram-card">
+            <h3>Casos de uso</h3>
+            <div class="mermaid">
+flowchart LR
+  U["Usuario"] --> UC1["Enviar mensaje"]
+  U --> UC2["Seleccionar proveedor"]
+  U --> UC3["Inspeccionar etapa"]
+  U --> UC4["Comparar tokens y compute"]
+  UC1 --> S["Sistema demo LLM"]
+  UC2 --> S
+  UC3 --> S
+  UC4 --> S
+            </div>
+          </div>
+
+          <div class="diagram-card">
+            <h3>Componentes</h3>
+            <div class="mermaid">
+flowchart TB
+  subgraph Frontend
+    Chat["ChatPanel"]
+    Flow["FlowPanel React Flow"]
+    Inspector["InspectorPanel"]
+    Compute["ComputeDashboard"]
+  end
+  subgraph Backend
+    API["FastAPI"]
+    Pipeline["Pipeline Application Service"]
+    Policy["Policy Guard"]
+    Provider["Provider Selection"]
+    Prompt["Prompt Builder"]
+    Orch["Orchestrator"]
+    Agents["Agents"]
+    Tools["Tool Allowlist"]
+  end
+  Chat --> API
+  API --> Pipeline
+  Pipeline --> Policy
+  Pipeline --> Provider
+  Pipeline --> Prompt
+  Pipeline --> Orch
+  Orch --> Agents
+  Orch --> Tools
+  Pipeline --> Flow
+  Pipeline --> Inspector
+  Pipeline --> Compute
+            </div>
+          </div>
+
+          <div class="diagram-card">
+            <h3>Clases principales</h3>
+            <div class="mermaid">
+classDiagram
+  class ChatRequest {
+    string message
+    ProviderName provider
+  }
+  class ChatResponse {
+    string response
+    TraceStep[] trace
+    TokenUsage token_usage
+    ProviderSummary provider
+    ComputeMetrics compute
+  }
+  class TraceStep {
+    string stage
+    string status
+    string input_type
+    string output_type
+    object input
+    object output
+    object metadata
+  }
+  class ProviderSummary {
+    ProviderName requested_provider
+    ProviderName selected_provider
+    string model
+    bool available
+  }
+  class ComputeMetrics {
+    string provider
+    string model
+    int latency_ms
+    int total_tokens
+    float estimated_cost_usd
+  }
+  ChatRequest --> ChatResponse
+  ChatResponse --> TraceStep
+  ChatResponse --> ProviderSummary
+  ChatResponse --> ComputeMetrics
+            </div>
+          </div>
+
+          <div class="diagram-card">
+            <h3>Secuencia modo local</h3>
+            <div class="mermaid">
+sequenceDiagram
+  participant U as Usuario
+  participant F as Frontend
+  participant B as Backend
+  participant P as Pipeline
+  participant A as Agente
+  U->>F: Escribe mensaje
+  F->>B: POST /api/chat provider=local_mock
+  B->>P: process_chat_message
+  P->>P: normaliza, tokeniza, detecta intencion
+  P->>P: policy_guard
+  P->>P: provider_selection local_mock
+  P->>P: prompt_builder
+  P->>A: respuesta deterministica
+  A-->>P: texto
+  P-->>B: ChatResponse + trace + compute
+  B-->>F: JSON
+  F->>F: React Flow + dashboard
+            </div>
+          </div>
+
+          <div class="diagram-card">
+            <h3>Secuencia OpenAI API preparada</h3>
+            <div class="mermaid">
+sequenceDiagram
+  participant U as Usuario
+  participant F as Frontend
+  participant B as Backend
+  participant P as Pipeline
+  participant PS as ProviderSelection
+  U->>F: Selecciona OpenAI API
+  F->>B: POST /api/chat provider=openai_api
+  B->>P: process_chat_message
+  P->>PS: select_provider(openai_api)
+  alt OPENAI_API_KEY ausente
+    PS-->>P: fallback local_mock
+  else Credencial presente
+    PS-->>P: openai_api preparado
+  end
+  P->>P: prompt_builder
+  P->>P: provider_execution observable
+  P-->>B: ChatResponse
+  B-->>F: JSON sin secretos
+            </div>
+          </div>
+
+          <div class="diagram-card">
+            <h3>Actividad del pipeline</h3>
+            <div class="mermaid">
+flowchart TD
+  A["raw_input"] --> B["normalization"]
+  B --> C["tokenization"]
+  C --> D["entity_extraction"]
+  D --> E["intent_detection"]
+  E --> F["intent_reinforcement"]
+  F --> G["policy_guard"]
+  G -->|blocked| Z["audit_log"]
+  G -->|allowed| H["provider_selection"]
+  H --> I["orchestrator"]
+  I --> J["prompt_builder"]
+  J --> K["agent_selection"]
+  K --> L["tool_execution"]
+  L --> M["provider_execution"]
+  M --> N["response_generation"]
+  N --> Z
+            </div>
+          </div>
+
+          <div class="diagram-card">
+            <h3>Despliegue local</h3>
+            <div class="mermaid">
+flowchart LR
+  Browser["Browser localhost:5173"] --> Vite["Vite dev server"]
+  Vite --> API["FastAPI localhost:8000"]
+  API --> Config["config/security_rules.yaml"]
+  API --> Env["Environment OPENAI_API_KEY optional"]
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="validacion">
+        <h2>10. Evidencia de validacion</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Area</th>
+              <th>Comando / prueba</th>
+              <th>Resultado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Backend</td>
+              <td><code>python -m compileall -q app</code></td>
+              <td>Sin errores.</td>
+            </tr>
+            <tr>
+              <td>Backend</td>
+              <td><code>pip check</code></td>
+              <td>No broken requirements found.</td>
+            </tr>
+            <tr>
+              <td>Frontend</td>
+              <td><code>npm run build</code></td>
+              <td>TypeScript y Vite compilan correctamente.</td>
+            </tr>
+            <tr>
+              <td>Frontend</td>
+              <td><code>npm audit --audit-level=moderate</code></td>
+              <td>0 vulnerabilidades.</td>
+            </tr>
+            <tr>
+              <td>API</td>
+              <td><code>/api/chat provider=openai_api</code></td>
+              <td>Fallback seguro a <code>local_mock</code> sin clave.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="riesgos">
+        <h2>11. Riesgos y limitaciones</h2>
+        <ul>
+          <li>El sistema no realiza llamadas reales a OpenAI en esta etapa.</li>
+          <li>Los costos y tokens son estimaciones educativas.</li>
+          <li>La integracion live con SDK oficial requiere compuerta segura de credenciales.</li>
+          <li>El pipeline todavia es procedural; se recomienda migrar luego a nodos `PipelineNode`.</li>
+        </ul>
+      </section>
+
+      <section id="conclusiones">
+        <h2>12. Conclusiones</h2>
+        <p>
+          La reestructuracion conserva las funcionalidades existentes y hace mas
+          clara la arquitectura moderna basada en tokens, agentes, proveedores,
+          prompt building, herramientas, costos, latencia y observabilidad.
+        </p>
+        <p>
+          El modo local sigue funcionando como base educativa y comparativa,
+          mientras que el modo OpenAI API queda representado de forma segura
+          para una integracion real futura.
+        </p>
+      </section>
+
+      <div class="footer">
+        Reporte generado para el proyecto EjemploApp. Para exportar como PDF,
+        usa el boton superior o el dialogo de impresion del navegador.
+      </div>
+    </main>
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+      mermaid.initialize({ startOnLoad: true, theme: "neutral", securityLevel: "loose" });
+    </script>
+  </body>
+</html>
